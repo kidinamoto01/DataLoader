@@ -12,10 +12,9 @@ object Write2Mysql {
 
   def main(args: Array[String]) {
 
-    if (args.length < 5) {
+    if (args.length <4) {
       System.err.println(s"""
                             |Usage: DirectKafkaWordCount <brokers> <topics>
-                            |  <master> is a list of one or more Kafka brokers
                             |  <path> is a list of one or more kafka topics to consume from
                             |  <mysqlurl>
                             |  <databasename>
@@ -24,7 +23,6 @@ object Write2Mysql {
       System.exit(1)
     }
     val Array(master,path,mysqlurl,databasename,tablename) = args
-    println(master)
     println(path)
     println(mysqlurl)
     println(databasename)
@@ -34,7 +32,7 @@ object Write2Mysql {
     val filepath = "hdfs://192.168.1.21:8020/sheshou/data/parquet/realtime/forcebreak/2017/4/16/17"
     val middlewarepath = "hdfs://192.168.1.21:8020/user/root/test/webmiddle/20170413/web.json"
     val hdfspath = "hdfs://192.168.1.21:8020/user/root/test/windowslogin/20170413/windowslogin"*/
-    val filepath = "hdfs://"+master+":8020"+path
+    val filepath = path
     val conf = new SparkConf().setAppName("Offline Doc Application").setMaster("local[*]")
     val sc = new SparkContext(conf)
     val sqlContext = new SQLContext(sc)
@@ -46,7 +44,7 @@ object Write2Mysql {
     prop.setProperty("user", "root")
     prop.setProperty("password", "andlinks")
 
-    val dfWriter = file.write.mode("overwrite").option("driver", "com.mysql.jdbc.Driver")
+    val dfWriter = file.write.mode("append").option("driver", "com.mysql.jdbc.Driver")
     dfWriter.jdbc("jdbc:mysql://"+mysqlurl+"/log_info", tablename, prop)
 
   }
